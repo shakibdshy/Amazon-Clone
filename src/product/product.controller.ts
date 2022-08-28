@@ -31,7 +31,7 @@ export class ProductController {
     // Update a Product
     @Patch(':id')
     @UsePipes(new ValidationPipe())
-    updateProduct(product: CreateProductDTO, @Param('id') id: string) { 
+    updateProduct(@Param('id') id: string, product: CreateProductDTO) { 
         return this.ProductService.update(id, product);
     }
 
