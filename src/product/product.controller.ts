@@ -1,17 +1,17 @@
 import { ProductService } from './product.service';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ProductDocument } from './product.schema';
+import { CreateProductDTO } from './CreateProduct.dto';
 
 @Controller('product')
 export class ProductController {
-  constructor(private readonly ProductService: ProductService) {}
+    constructor(private ProductService: ProductService) { }
 
-  @Post()
-  createProduct(
-    @Body('name') name: string,
-    @Body('price') price: number,
-    @Body('description') description?: string,
-  ): Promise<ProductDocument> {
-    return this.ProductService.create(name, price, description);
-  }
+    @Post()
+    @UsePipes(new ValidationPipe())
+    createProduct(
+        @Body() productData: CreateProductDTO,
+    ) {
+        return this.ProductService.create(productData);
+    }
 }
