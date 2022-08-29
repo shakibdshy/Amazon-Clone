@@ -1,7 +1,8 @@
 import { ProductService } from './product.service';
-import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ProductDocument } from './product.schema';
 import { CreateProductDTO } from './CreateProduct.dto';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 
 @Controller('product')
 export class ProductController {
@@ -14,12 +15,14 @@ export class ProductController {
     }
 
     // // Get Product by ID
+    @UseGuards(JwtGuard)
     @Get(':id')
     getProductById(@Param('id') id: string) { 
         return this.ProductService.findById(id);
     }
 
     // Create a new Product
+    @UseGuards(JwtGuard)
     @Post()
     @UsePipes(new ValidationPipe())
     createProduct(
@@ -29,6 +32,7 @@ export class ProductController {
     }
 
     // Update a Product
+    @UseGuards(JwtGuard)
     @Patch(':id')
     @UsePipes(new ValidationPipe())
     updateProduct(@Param('id') id: string, @Body() product: CreateProductDTO) { 
@@ -36,6 +40,7 @@ export class ProductController {
     }
 
     // Delete a Product
+    @UseGuards(JwtGuard)
     @Delete(':id')
     deleteProduct(@Param('id') id: string) {
         return this.ProductService.delete(id);
