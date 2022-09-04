@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/user.interface';
 import { ExistingUserDTO } from '../user/dtos/existingUser.dto';
@@ -16,7 +16,7 @@ export class AuthService {
 
     async register(user: UserDTO) {
         const existingUser = await this.userService.findByEmail(user.email);
-        if (existingUser) return 'Email already exists';
+        if (existingUser) throw new HttpException('User already exists!', HttpStatus.UNAUTHORIZED);
 
         user.password = await this.hashPassword(user.password);
 
@@ -41,11 +41,19 @@ export class AuthService {
 
     async login(user: ExistingUserDTO): Promise<{ token: string | null }> {
         const validatedUser = await this.validateUser(user);
-        if (!validatedUser) return { token: null };
+        if (!validatedUser) throw new HttpException('Invalid credentials!', HttpStatus.UNAUTHORIZED);
 
         const token = await this.jwtService.signAsync({ id: validatedUser.id });
 
         return { token };
+    }
+
+    async verifyJwt(jwt: string): Promise<{ exp: number }> { 
+        try {
+            return await this.jwtService.verifyAsync(jwt);
+        } catch (error) { 
+            throw new HttpException('Invalid JWT', HttpStatus.UNAUTHORIZED);
+        }
     }
     
 }
